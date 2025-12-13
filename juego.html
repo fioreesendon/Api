@@ -12,9 +12,9 @@
 
   <h1 class="mb-4 text-primary fw-bold">Adivina el País por su Capital</h1>
 
-    <div class="game-card">
+  <div class="game-card">
 
-      <p id="capital" class="capital">Cargando...</p>
+    <p id="capital" class="capital">Cargando...</p>
 
     <div id="options" class="d-grid gap-2"></div>
 
@@ -26,74 +26,77 @@
   <a href="index.html" class="btn btn-outline-secondary mt-4">⬅️ Volver al Buscador</a>
 
 <script>
+
 let paises = [];
-  let paisCorrecto = null;
+let paisCorrecto = null;
 
+async function cargarPaises() {
+  try {
+    const res = await fetch("https://restcountries.com/v3.1/all?fields=name,capital");
+    if (!res.ok) throw 0;
+    const data = await res.json();
 
-  async function cargarPaises() {
-    try {
-      const res = await fetch("https://restcountries.com/v3.1/all?fields=name,capital");
-
-      if (!res.ok) throw 0;
-
-      const data = await res.json();
-
-      paises = data.filter(p => p.capital);
-    } catch {
-
-      paises = [
-        { name: { common: "Argentina" }, capital: ["Buenos Aires"] },
-        { name: { common: "Francia" }, capital: ["París"] },
-        { name: { common: "Japón" }, capital: ["Tokio"] },
-        { name: { common: "Canadá" }, capital: ["Ottawa"] }
-      ];
-    }
-
-    nuevaPregunta();
+    paises = data.filter(p => p.capital);
+  } catch {
+    paises = [
+      { name: { common: "Argentina" }, capital: ["Buenos Aires"] },
+      { name: { common: "Francia" }, capital: ["París"] },
+      { name: { common: "Japón" }, capital: ["Tokio"] },
+      { name: { common: "Canadá" }, capital: ["Ottawa"] }
+    ];
   }
 
-  function nuevaPregunta() {
+  nuevaPregunta();
+}
 
-    feedback.textContent = "";
-        nextBtn.style.display = "none";
-paisCorrecto = paises[Math.random() * paises.length | 0];
+function nuevaPregunta() {
 
-    capital.textContent = `¿De qué país es la capital "${paisCorrecto.capital[0]}"?`;
+  feedback.textContent = "";
+  nextBtn.style.display = "none";
 
-    const opciones = [paisCorrecto];
+  paisCorrecto = paises[Math.random() * paises.length | 0];
 
-        while (opciones.length < 4) {
-      let p = paises[Math.random() * paises.length | 0];
+  capital.textContent = `¿De qué país es la capital "${paisCorrecto.capital[0]}"?`;
 
-        if (!opciones.includes(p)) opciones.push(p);
-    }
+  const opciones = [paisCorrecto];
 
-    opciones.sort(() => Math.random() - 0.5);
-
-    options.innerHTML = opciones
-      .map(p =>
-        `<button class="btn btn-outline-primary btn-option" onclick="verificar('${p.name.common}')">${p.name.common}</button>`
-      )
-      .join('');
+  while (opciones.length < 4) {
+    let p = paises[Math.random() * paises.length | 0];
+    if (!opciones.includes(p)) opciones.push(p);
   }
 
-  function verificar(sel) {
+  opciones.sort(() => Math.random() - 0.5);
 
-    document.querySelectorAll(".btn-option").forEach(b => b.disabled = true);
+  options.replaceChildren();
 
-    if (sel === paisCorrecto.name.common) {
-      feedback.textContent = "✅ ¡Correcto!";
-      feedback.className = "feedback text-success";
-    }
+  opciones.forEach(p => {
+    const btn = document.createElement("button");
+    btn.classList.add("btn", "btn-outline-primary", "btn-option");
+    btn.textContent = p.name.common;
 
-    else {
-      feedback.textContent = `❌ Incorrecto. Era ${paisCorrecto.name.common}`;
-      feedback.className = "feedback text-danger";
-    }
+    btn.addEventListener("click", () => verificar(p.name.common));
 
-    nextBtn.style.display = "block";
+    options.appendChild(btn);
+  });
+}
+
+function verificar(sel) {
+
+  document.querySelectorAll(".btn-option").forEach(b => b.disabled = true);
+
+  if (sel === paisCorrecto.name.common) {
+    feedback.textContent = "✅ ¡Correcto!";
+    feedback.className = "feedback text-success";
+  } else {
+    feedback.textContent = `❌ Incorrecto. Era ${paisCorrecto.name.common}`;
+    feedback.className = "feedback text-danger";
   }
-  cargarPaises();
+
+  nextBtn.style.display = "block";
+}
+
+cargarPaises();
+
 /*
 Bootstrap 5.3.3
 Recurso utilizado: Sistema de estilos y componentes CSS.
@@ -117,9 +120,9 @@ Licencia: CC BY-SA 2.5
 HTLM, RESPONSIVE
 Sitio oficial: https://plataformas-moviles.tecnica4berazategui.edu.ar/
 autor:José Yedro
-
 */
 </script>
 
 </body>
 </html>
+
